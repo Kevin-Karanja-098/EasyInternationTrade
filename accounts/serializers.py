@@ -1,7 +1,31 @@
 # accounts/serializers.py
 from rest_framework import serializers
 from .models import User
+from .models import Document
 
+class DocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Document
+        fields = [
+            "id",
+            "id_front",
+            "id_back",
+            "dl_front",
+            "dl_back",
+            "business_license",
+            "face_photo",
+            "is_verified",
+        ]
+        read_only_fields = ["is_verified"]
+
+    def create(self, validated_data):
+        """
+        Django model validation already enforces document rules.
+        """
+        document = Document(**validated_data)
+        document.full_clean()  # triggers the validation logic in model.clean()
+        document.save()
+        return document
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
 

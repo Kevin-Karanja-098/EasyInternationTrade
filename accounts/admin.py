@@ -1,7 +1,9 @@
-# accounts/admin.py
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User
+from .models import User, Document
+
+
+
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
@@ -12,9 +14,31 @@ class UserAdmin(BaseUserAdmin):
 
     fieldsets = (
         (None, {"fields": ("email", "password")}),
-        ("Personal info", {"fields": ("first_name", "last_name", "company_name", "phone_number", "tax_id")}),
-        ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser", "role", "groups", "user_permissions")}),
-        ("Verification", {"fields": ("verified", "verification_status")}),
+        ("Personal info", {
+            "fields": (
+                "first_name",
+                "last_name",
+                "company_name",
+                "phone_number",
+                "tax_id",
+            )
+        }),
+        ("Permissions", {
+            "fields": (
+                "is_active",
+                "is_staff",
+                "is_superuser",
+                "role",
+                "groups",
+                "user_permissions",
+            )
+        }),
+        ("Verification", {
+            "fields": (
+                "verified",
+                "verification_status",
+            )
+        }),
     )
 
     add_fieldsets = (
@@ -23,3 +47,16 @@ class UserAdmin(BaseUserAdmin):
             "fields": ("email", "role", "password1", "password2"),
         }),
     )
+
+from .models import Document
+
+@admin.register(Document)
+class DocumentAdmin(admin.ModelAdmin):
+    list_display = ("user", "is_verified")
+    list_filter = ( "is_verified",)
+
+    actions = ["mark_verified"]
+
+    def mark_verified(self, request, queryset):
+        queryset.update(is_verified=True)
+    mark_verified.short_description = "Mark selected documents as verified"
